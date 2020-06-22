@@ -4,16 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.1] - 2020-05-12
+## [1.0.1] - 2020-06-22
 ### Added
 
-- Support bastion internet ssh access using ip whitelist
+- Add bastion and worker disk size with default values
+- correct readme and changelog
 
-## [0.5.0] - 2020-05-12
+## [1.0.0] - 2020-05-12
 ### Added
 
-- Support for simultaneous public and private ips using 2 load balancers
-
-## [0.3.0] - 2019-08-12
-
-- separate availability sets for workers and managers
+- Migration from walmartdigital/k8s-vms-module
