@@ -2,6 +2,10 @@ terraform {
   required_version = ">= 0.12"
 }
 
+provider "azurerm" {
+  features {}
+}
+
 resource "azurerm_availability_set" "managers" {
   name                        = "${var.cluster_name}-${var.environment}-${var.name_suffix}-managers"
   location                    = data.azurerm_resource_group.main.location

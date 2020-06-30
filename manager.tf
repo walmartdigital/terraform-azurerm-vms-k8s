@@ -1,15 +1,27 @@
+resource "azurerm_network_security_group" "manager" {
+  count               = var.add_bastion == "yes" ? "1" : "0"
+  name                = "${var.cluster_name}-${var.environment}-${var.name_suffix}-manager"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
 resource "azurerm_network_interface" "manager" {
-  count                     = var.add_managers == "yes" ? var.manager_count : "0"
-  name                      = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("manager%d", count.index + 1)}"
-  location                  = data.azurerm_resource_group.main.location
-  resource_group_name       = data.azurerm_resource_group.main.name
-  network_security_group_id = var.manager_network_security_group_id
+  count               = var.add_managers == "yes" ? var.manager_count : "0"
+  name                = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("manager%d", count.index + 1)}"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
 
   ip_configuration {
     name                          = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("manager%d", count.index + 1)}"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "manager" {
+  count                     = var.add_bastion == "yes" ? "1" : "0"
+  network_interface_id      = azurerm_network_interface.manager[0].id
+  network_security_group_id = azurerm_network_security_group.manager[0].id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "manager" {

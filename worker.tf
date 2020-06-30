@@ -1,16 +1,21 @@
 resource "azurerm_network_interface" "worker" {
-  count                     = var.worker_count
-  name                      = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
-  location                  = data.azurerm_resource_group.main.location
-  resource_group_name       = data.azurerm_resource_group.main.name
-  network_security_group_id = var.worker_network_security_group_id
-  enable_ip_forwarding      = true
+  count                = var.worker_count
+  name                 = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+  location             = data.azurerm_resource_group.main.location
+  resource_group_name  = data.azurerm_resource_group.main.name
+  enable_ip_forwarding = true
 
   ip_configuration {
     name                          = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "worker" {
+  count                     = var.worker_count
+  network_interface_id      = element(azurerm_network_interface.worker.*.id, count.index)
+  network_security_group_id = var.worker_network_security_group_id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker_public" {
@@ -21,7 +26,7 @@ resource "azurerm_network_interface_backend_address_pool_association" "worker_pu
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker_private" {
-  count                   = var.worker_count
+  count                   = var.worker_count * length(var.worker_lb_address_pool_id_private)
   network_interface_id    = element(azurerm_network_interface.worker.*.id, count.index)
   ip_configuration_name   = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
   backend_address_pool_id = var.worker_lb_address_pool_id_private

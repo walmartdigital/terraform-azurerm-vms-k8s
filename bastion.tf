@@ -44,11 +44,10 @@ resource "azurerm_network_security_rule" "ssh_allowed_ips" {
 }
 
 resource "azurerm_network_interface" "bastion" {
-  count                     = var.add_bastion == "yes" ? "1" : "0"
-  name                      = "${var.cluster_name}-${var.environment}-${var.name_suffix}-bastion"
-  location                  = data.azurerm_resource_group.main.location
-  resource_group_name       = data.azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.bastion[0].id
+  count               = var.add_bastion == "yes" ? "1" : "0"
+  name                = "${var.cluster_name}-${var.environment}-${var.name_suffix}-bastion"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
 
   ip_configuration {
     name                          = "${var.cluster_name}-${var.environment}-${var.name_suffix}-bastion"
@@ -56,6 +55,12 @@ resource "azurerm_network_interface" "bastion" {
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.bastion[0].id
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "bastion" {
+  count                     = var.add_bastion == "yes" ? "1" : "0"
+  network_interface_id      = azurerm_network_interface.bastion[0].id
+  network_security_group_id = azurerm_network_security_group.bastion[0].id
 }
 
 resource "azurerm_virtual_machine" "bastion" {
