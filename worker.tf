@@ -1,12 +1,18 @@
+resource "azurerm_network_security_group" "worker" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
 resource "azurerm_network_interface" "worker" {
   count                = var.worker_count
-  name                 = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+  name                 = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
   location             = data.azurerm_resource_group.main.location
   resource_group_name  = data.azurerm_resource_group.main.name
   enable_ip_forwarding = true
 
   ip_configuration {
-    name                          = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+    name                          = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
@@ -15,26 +21,89 @@ resource "azurerm_network_interface" "worker" {
 resource "azurerm_network_interface_security_group_association" "worker" {
   count                     = var.worker_count
   network_interface_id      = element(azurerm_network_interface.worker.*.id, count.index)
-  network_security_group_id = var.worker_network_security_group_id
+  network_security_group_id = azurerm_network_security_group.worker.id
+}
+
+resource "azurerm_public_ip" "public_ip" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-public-ip"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+  allocation_method   = "Static"
+
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+    },
+  )
+}
+
+resource "azurerm_lb" "public_load_balancer" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-public-lb"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+
+  frontend_ip_configuration {
+    name                 = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-frontend"
+    public_ip_address_id = azurerm_public_ip.public_ip.id
+    subnet_id            = data.azurerm_subnet.subnet.id
+  }
+
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+    },
+  )
+}
+
+resource "azurerm_lb_backend_address_pool" "public_address_pool" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-public-address-pool"
+  resource_group_name = data.azurerm_resource_group.main.name
+  loadbalancer_id     = azurerm_lb.public_load_balancer.id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker_public" {
   count                   = var.worker_count
   network_interface_id    = element(azurerm_network_interface.worker.*.id, count.index)
-  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
-  backend_address_pool_id = var.worker_lb_address_pool_id_public
+  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.public_address_pool.id
+}
+
+resource "azurerm_lb" "private_load_balancer" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-private-lb"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main.name
+
+  frontend_ip_configuration {
+    name      = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-frontend"
+    subnet_id = data.azurerm_subnet.subnet.id
+  }
+
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+    },
+  )
+}
+
+resource "azurerm_lb_backend_address_pool" "private_address_pool" {
+  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-private-address-pool"
+  resource_group_name = data.azurerm_resource_group.main.name
+  loadbalancer_id     = azurerm_lb.public_load_balancer.id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker_private" {
-  count                   = var.worker_count * length(var.worker_lb_address_pool_id_private)
+  count                   = var.worker_count
   network_interface_id    = element(azurerm_network_interface.worker.*.id, count.index)
-  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
-  backend_address_pool_id = var.worker_lb_address_pool_id_private
+  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.private_address_pool.id
 }
 
 resource "azurerm_virtual_machine" "worker" {
   count                            = var.worker_count
-  name                             = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+  name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
   location                         = data.azurerm_resource_group.main.location
   availability_set_id              = azurerm_availability_set.workers.id
   resource_group_name              = data.azurerm_resource_group.main.name
@@ -48,15 +117,15 @@ resource "azurerm_virtual_machine" "worker" {
   }
 
   storage_os_disk {
-    name              = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+    name              = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
-    disk_size_gb      = var.worker_disk_size
+    disk_size_gb      = 30
   }
 
   os_profile {
-    computer_name  = "${var.cluster_name}-${var.environment}-${var.name_suffix}-${format("${var.worker_name}%d", count.index + 1)}"
+    computer_name  = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
     admin_username = "ubuntu"
     admin_password = "ef208a6b-a6b0-47f0-be8f-2d2bd2e640ba"
   }
@@ -73,8 +142,8 @@ resource "azurerm_virtual_machine" "worker" {
   tags = merge(
     var.default_tags,
     {
-      "environmentinfo" = "T:Prod; N:${var.cluster_name}-${var.environment}-${var.name_suffix}"
-      "cluster"         = "${var.cluster_name}-${var.environment}-${var.name_suffix}"
+      "environmentinfo" = "T:Prod; N:${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+      "cluster"         = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
       "role"            = "worker"
     },
   )

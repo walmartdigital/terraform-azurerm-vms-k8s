@@ -1,10 +1,6 @@
-variable "name_suffix" {
-  type = string
-}
-
 variable "cluster_name" {
   type    = string
-  default = "kubernetes"
+  default = "k8s"
 }
 
 variable "environment" {
@@ -13,28 +9,33 @@ variable "environment" {
 }
 
 variable "main_resource_group" {
-  type = string
+  type    = string
+  default = "resource_group_default"
 }
 
 variable "images_resource_group" {
-  type = string
+  type    = string
+  default = "resource_group_default"
 }
 
 variable "vnet_name" {
-  type = string
+  type    = string
+  default = "vnet_default"
 }
 
 variable "subnet_name" {
-  type = string
+  type    = string
+  default = "default_subnet"
 }
 
 variable "k8s_image_name" {
-  type = string
+  type    = string
+  default = "k8s"
 }
 
 variable "bastion_image_name" {
-  type = string
-  default = ""
+  type    = string
+  default = "bastion"
 }
 
 variable "ssh_public_key" {
@@ -74,37 +75,6 @@ variable "worker_vm_size" {
 variable "manager_vm_size" {
   type    = string
   default = "Standard_DS2_v2"
-}
-
-variable "bastion_disk_size" {
-  type    = number
-  default = 30
-}
-
-variable "worker_disk_size" {
-  type    = number
-  default = 30
-}
-
-variable "worker_lb_address_pool_id_public" {
-  type = string
-}
-
-variable "worker_lb_address_pool_id_private" {
-  type = string
-}
-
-variable "manager_lb_address_pool_id" {
-  type = string
-  default = ""
-}
-
-variable "worker_network_security_group_id" {
-  type = string
-}
-
-variable "manager_network_security_group_id" {
-  type = string
 }
 
 variable "add_managers" {

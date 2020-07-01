@@ -6,8 +6,11 @@ provider "azurerm" {
   features {}
 }
 
+resource "random_pet" "suffix" {
+}
+
 resource "azurerm_availability_set" "managers" {
-  name                        = "${var.cluster_name}-${var.environment}-${var.name_suffix}-managers"
+  name                        = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-managers"
   location                    = data.azurerm_resource_group.main.location
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
@@ -15,7 +18,7 @@ resource "azurerm_availability_set" "managers" {
 }
 
 resource "azurerm_availability_set" "workers" {
-  name                        = "${var.cluster_name}-${var.environment}-${var.name_suffix}-workers"
+  name                        = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-workers"
   location                    = data.azurerm_resource_group.main.location
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
