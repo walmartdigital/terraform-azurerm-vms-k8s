@@ -13,15 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
-
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actionshub/terraform-lint@master
 
       - name: validate
         run: |
           terraform init
           terraform validate -no-color
-
-      - run: echo ${{ steps.plan.outputs.stdout }}
-      - run: echo ${{ steps.plan.outputs.stderr }}
-      - run: echo ${{ steps.plan.outputs.exitcode }}
