@@ -30,8 +30,8 @@ resource "azurerm_network_security_rule" "ssh" {
 
 resource "azurerm_network_security_rule" "ssh_allowed_ips" {
   count                       = var.add_bastion == "yes" ? var.block_bastion_ssh == "yes" ? "0" : length(var.bastion_ssh_allowed_ips) : "0"
-  name                        = "ssh${count.index}"
-  priority                    = "150${count.index}"
+  name                        = "ssh-${count.index}"
+  priority                    = "15${count.index}"
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "*"
@@ -88,7 +88,7 @@ resource "azurerm_virtual_machine" "bastion" {
   os_profile {
     computer_name  = "${var.cluster_name}-${var.environment}-${data.azurerm_resource_group.main.location}"
     admin_username = "ubuntu"
-    admin_password = "ef208a6b-a6b0-47f0-be8f-2d2bd2e640ba"
+    admin_password = random_password.vms
   }
 
   os_profile_linux_config {

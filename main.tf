@@ -9,6 +9,12 @@ provider "azurerm" {
 resource "random_pet" "suffix" {
 }
 
+resource "random_password" "vms" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
 resource "azurerm_availability_set" "managers" {
   name                        = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-managers"
   location                    = data.azurerm_resource_group.main.location
