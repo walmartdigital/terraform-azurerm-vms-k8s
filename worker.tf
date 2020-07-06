@@ -15,7 +15,7 @@ resource "azurerm_network_security_rule" "k8s_services" {
   source_address_prefix       = "Internet"
   destination_address_prefix  = "VirtualNetwork"
   resource_group_name         = data.azurerm_resource_group.main.name
-  network_security_group_name = azurerm_network_security_group.worker[0].name
+  network_security_group_name = azurerm_network_security_group.worker.name
 }
 
 resource "azurerm_network_interface" "worker" {
