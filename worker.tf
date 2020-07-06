@@ -20,13 +20,13 @@ resource "azurerm_network_security_rule" "k8s_services" {
 
 resource "azurerm_network_interface" "worker" {
   count                = var.worker_count
-  name                 = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  name                 = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
   location             = data.azurerm_resource_group.main.location
   resource_group_name  = data.azurerm_resource_group.main.name
   enable_ip_forwarding = true
 
   ip_configuration {
-    name                          = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+    name                          = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
@@ -114,7 +114,7 @@ resource "azurerm_lb_backend_address_pool" "address_pool_public" {
 resource "azurerm_network_interface_backend_address_pool_association" "worker_public" {
   count                   = var.worker_count
   network_interface_id    = element(azurerm_network_interface.worker.*.id, count.index)
-  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.address_pool_public.id
 }
 
@@ -178,13 +178,13 @@ resource "azurerm_lb_backend_address_pool" "address_pool_private" {
 resource "azurerm_network_interface_backend_address_pool_association" "worker_private" {
   count                   = var.worker_count
   network_interface_id    = element(azurerm_network_interface.worker.*.id, count.index)
-  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  ip_configuration_name   = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.address_pool_private.id
 }
 
 resource "azurerm_virtual_machine" "worker" {
   count                            = var.worker_count
-  name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+  name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
   location                         = data.azurerm_resource_group.main.location
   availability_set_id              = azurerm_availability_set.workers.id
   resource_group_name              = data.azurerm_resource_group.main.name
@@ -198,7 +198,7 @@ resource "azurerm_virtual_machine" "worker" {
   }
 
   storage_os_disk {
-    name              = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+    name              = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -206,7 +206,7 @@ resource "azurerm_virtual_machine" "worker" {
   }
 
   os_profile {
-    computer_name  = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("${var.worker_name}%d", count.index + 1)}"
+    computer_name  = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-worker-${count.index + 1}"
     admin_username = "ubuntu"
     admin_password = random_password.vms
   }

@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "bastion" {
-  count               = var.add_bastion == "yes" ? "1" : "0"
+  count               = var.add_bastion ? 1 : 0
   name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
@@ -7,14 +7,14 @@ resource "azurerm_public_ip" "bastion" {
 }
 
 resource "azurerm_network_security_group" "bastion" {
-  count               = var.add_bastion == "yes" ? "1" : "0"
+  count               = var.add_bastion ? 1 : 0
   name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 }
 
 resource "azurerm_network_security_rule" "ssh_private" {
-  count                       = var.add_bastion == "yes" ? var.block_bastion_ssh == "yes" ? "1" : "0" : "0"
+  count                       = var.add_bastion ? 1 : 0
   name                        = "ssh-private"
   priority                    = 150
   direction                   = "Inbound"
@@ -29,7 +29,7 @@ resource "azurerm_network_security_rule" "ssh_private" {
 }
 
 resource "azurerm_network_security_rule" "ssh_public" {
-  count                       = var.add_bastion == "yes" ? var.block_bastion_ssh == "yes" ? "0" : length(var.bastion_ssh_allowed_ips) : "0"
+  count                       = length(var.bastion_ssh_allowed_ips)
   name                        = "ssh-public-${count.index}"
   priority                    = "15${count.index}"
   direction                   = "Inbound"
@@ -44,7 +44,7 @@ resource "azurerm_network_security_rule" "ssh_public" {
 }
 
 resource "azurerm_network_interface" "bastion" {
-  count               = var.add_bastion == "yes" ? "1" : "0"
+  count               = var.add_bastion ? 1 : 0
   name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
@@ -58,13 +58,13 @@ resource "azurerm_network_interface" "bastion" {
 }
 
 resource "azurerm_network_interface_security_group_association" "bastion" {
-  count                     = var.add_bastion == "yes" ? "1" : "0"
+  count                     = var.add_bastion ? 1 : 0
   network_interface_id      = azurerm_network_interface.bastion[0].id
   network_security_group_id = azurerm_network_security_group.bastion[0].id
 }
 
 resource "azurerm_virtual_machine" "bastion" {
-  count                            = var.add_bastion == "yes" ? "1" : "0"
+  count                            = var.add_bastion ? 1 : 0
   name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
   location                         = data.azurerm_resource_group.main.location
   resource_group_name              = data.azurerm_resource_group.main.name

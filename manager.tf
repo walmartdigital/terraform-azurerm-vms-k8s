@@ -18,13 +18,13 @@ resource "azurerm_network_interface" "manager" {
 }
 
 resource "azurerm_network_interface_security_group_association" "manager" {
-  count                     = var.add_bastion == "yes" ? "1" : "0"
-  network_interface_id      = azurerm_network_interface.manager[0].id
+  count                     = var.manager_count
+  network_interface_id      = element(azurerm_network_interface.manager.*.id, count.index)
   network_security_group_id = azurerm_network_security_group.manager.id
 }
 
 resource "azurerm_virtual_machine" "manager" {
-  count                            = var.add_managers == "yes" ? var.manager_count : "0"
+  count                            = var.manager_count
   name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("manager%d", count.index + 1)}"
   location                         = data.azurerm_resource_group.main.location
   availability_set_id              = azurerm_availability_set.managers.id

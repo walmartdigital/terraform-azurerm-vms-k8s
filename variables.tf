@@ -1,95 +1,11 @@
-variable "cluster_name" {
-  type    = string
-  default = "k8s"
-}
-
-variable "environment" {
-  type    = string
-  default = "labs"
-}
-
-variable "main_resource_group" {
-  type    = string
-  default = "resource_group_default"
-}
-
-variable "images_resource_group" {
-  type    = string
-  default = "resource_group_default"
-}
-
-variable "vnet_name" {
-  type    = string
-  default = "vnet_default"
-}
-
-variable "subnet_name" {
-  type    = string
-  default = "default_subnet"
-}
-
-variable "k8s_image_name" {
-  type    = string
-  default = "k8s"
+variable "add_bastion" {
+  type    = bool
+  default = true
 }
 
 variable "bastion_image_name" {
   type    = string
-  default = "bastion"
-}
-
-variable "ssh_public_key" {
-  type = string
-}
-
-variable "default_tags" {
-  type = map(string)
-
-  default = {
-    applicationname = "k8s"
-    deploymenttype  = "Terraform"
-    platform        = "Kubernetes"
-  }
-}
-
-variable "worker_count" {
-  type    = string
-  default = "3"
-}
-
-variable "worker_name" {
-  type    = string
-  default = "worker"
-}
-
-variable "manager_count" {
-  type    = string
-  default = "3"
-}
-
-variable "worker_vm_size" {
-  type    = string
-  default = "Standard_DS4_v2"
-}
-
-variable "manager_vm_size" {
-  type    = string
-  default = "Standard_DS2_v2"
-}
-
-variable "add_managers" {
-  type    = string
-  default = "yes"
-}
-
-variable "add_bastion" {
-  type    = string
-  default = "yes"
-}
-
-variable "block_bastion_ssh" {
-  type    = string
-  default = "yes"
+  default = "bastion-v1.0.0"
 }
 
 variable "bastion_ssh_allowed_ips" {
@@ -97,9 +13,32 @@ variable "bastion_ssh_allowed_ips" {
   default = []
 }
 
-variable "add_manager_lb" {
+variable "cluster_name" {
   type    = string
-  default = "no"
+  default = "k8s"
+}
+
+variable "default_tags" {
+  type = map(string)
+
+  default = {
+    platform = "Kubernetes"
+  }
+}
+
+variable "environment" {
+  type    = string
+  default = "labs"
+}
+
+variable "images_resource_group" {
+  type    = string
+  default = "resource_group_default"
+}
+
+variable "k8s_image_name" {
+  type    = string
+  default = "k8s-v1.0.0"
 }
 
 variable "lb_ports" {
@@ -115,3 +54,43 @@ variable "lb_ports" {
     visibility   = "public"
   }]
 }
+
+variable "main_resource_group" {
+  type    = string
+  default = "resource_group_default"
+}
+
+variable "manager_count" {
+  type    = string
+  default = "3"
+}
+
+variable "manager_vm_size" {
+  type    = string
+  default = "Standard_DS2_v2"
+}
+
+variable "ssh_public_key" {
+  type = string
+}
+
+variable "subnet_name" {
+  type    = string
+  default = "default_subnet"
+}
+
+variable "vnet_name" {
+  type    = string
+  default = "vnet_default"
+}
+
+variable "worker_count" {
+  type    = string
+  default = "3"
+}
+
+variable "worker_vm_size" {
+  type    = string
+  default = "Standard_DS4_v2"
+}
+
