@@ -21,6 +21,13 @@ resource "azurerm_availability_set" "managers" {
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
   platform_fault_domain_count = 2
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "manager"
+    },
+  )
 }
 
 resource "azurerm_availability_set" "workers" {
@@ -29,6 +36,13 @@ resource "azurerm_availability_set" "workers" {
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
   platform_fault_domain_count = 2
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "worker"
+    },
+  )
 }
 
 data "azurerm_resource_group" "main" {

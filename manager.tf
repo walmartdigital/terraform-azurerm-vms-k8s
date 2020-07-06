@@ -15,6 +15,14 @@ resource "azurerm_network_interface" "manager" {
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
+
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "manager"
+    },
+  )
 }
 
 resource "azurerm_network_interface_security_group_association" "manager" {
