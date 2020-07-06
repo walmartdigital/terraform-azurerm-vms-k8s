@@ -1,12 +1,11 @@
 resource "azurerm_network_security_group" "manager" {
-  count               = var.add_bastion == "yes" ? "1" : "0"
   name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-manager"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 }
 
 resource "azurerm_network_interface" "manager" {
-  count               = var.add_managers == "yes" ? var.manager_count : "0"
+  count               = var.manager_count
   name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-${format("manager%d", count.index + 1)}"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
@@ -21,7 +20,7 @@ resource "azurerm_network_interface" "manager" {
 resource "azurerm_network_interface_security_group_association" "manager" {
   count                     = var.add_bastion == "yes" ? "1" : "0"
   network_interface_id      = azurerm_network_interface.manager[0].id
-  network_security_group_id = azurerm_network_security_group.manager[0].id
+  network_security_group_id = azurerm_network_security_group.manager.id
 }
 
 resource "azurerm_virtual_machine" "manager" {
@@ -64,9 +63,8 @@ resource "azurerm_virtual_machine" "manager" {
   tags = merge(
     var.default_tags,
     {
-      "environmentinfo" = "T:Prod; N:${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
-      "cluster"         = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
-      "role"            = "manager"
+      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+      "role"    = "manager"
     },
   )
 }

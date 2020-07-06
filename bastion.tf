@@ -13,9 +13,9 @@ resource "azurerm_network_security_group" "bastion" {
   resource_group_name = data.azurerm_resource_group.main.name
 }
 
-resource "azurerm_network_security_rule" "ssh" {
+resource "azurerm_network_security_rule" "ssh_private" {
   count                       = var.add_bastion == "yes" ? var.block_bastion_ssh == "yes" ? "1" : "0" : "0"
-  name                        = "ssh"
+  name                        = "ssh-private"
   priority                    = 150
   direction                   = "Inbound"
   access                      = "Allow"
@@ -28,9 +28,9 @@ resource "azurerm_network_security_rule" "ssh" {
   network_security_group_name = azurerm_network_security_group.bastion[0].name
 }
 
-resource "azurerm_network_security_rule" "ssh_allowed_ips" {
+resource "azurerm_network_security_rule" "ssh_public" {
   count                       = var.add_bastion == "yes" ? var.block_bastion_ssh == "yes" ? "0" : length(var.bastion_ssh_allowed_ips) : "0"
-  name                        = "ssh-${count.index}"
+  name                        = "ssh-public-${count.index}"
   priority                    = "15${count.index}"
   direction                   = "Inbound"
   access                      = "Allow"
@@ -103,9 +103,8 @@ resource "azurerm_virtual_machine" "bastion" {
   tags = merge(
     var.default_tags,
     {
-      "environmentinfo" = "T:Prod; N:${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
-      "cluster"         = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
-      "role"            = "bastion"
+      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+      "role"    = "bastion"
     },
   )
 }

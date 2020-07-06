@@ -101,3 +101,17 @@ variable "add_manager_lb" {
   type    = string
   default = "no"
 }
+
+variable "lb_ports" {
+  type = list
+  default = [{
+    name         = "http"
+    port         = "80"
+    protocol     = "Tcp"
+    backend_port = 30000
+    probe_port   = 30000
+    probe_path   = "/"
+    target       = "workers"
+    visibility   = "public"
+  }]
+}
