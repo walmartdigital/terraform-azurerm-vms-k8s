@@ -48,7 +48,7 @@ resource "azurerm_virtual_machine" "manager" {
   os_profile {
     computer_name  = "${var.cluster_name}-${random_pet.suffix.id}-${format("manager%d", count.index + 1)}"
     admin_username = "ubuntu"
-    admin_password = random_password.vms
+    admin_password = random_password.vms.result
   }
 
   os_profile_linux_config {

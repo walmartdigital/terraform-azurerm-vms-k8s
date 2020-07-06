@@ -88,7 +88,7 @@ resource "azurerm_virtual_machine" "bastion" {
   os_profile {
     computer_name  = "${var.cluster_name}-${data.azurerm_resource_group.main.location}"
     admin_username = "ubuntu"
-    admin_password = random_password.vms
+    admin_password = random_password.vms.result
   }
 
   os_profile_linux_config {
