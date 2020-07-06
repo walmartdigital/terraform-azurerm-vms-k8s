@@ -15,7 +15,7 @@ output "manager_ips" {
 
 output "suffix" {
   description = "random suffix generated"
-  value       = random_pet.suffix
+  value       = random_pet.suffix.id
 }
 
 output "worker_ips" {
