@@ -1,34 +1,35 @@
 variable "add_bastion" {
-  type    = bool
-  default = true
+  type        = bool
+  description = "should add bastion host or not"
+  default     = true
 }
 
 variable "bastion_image_name" {
-  type    = string
-  default = "bastion-v1.0.0"
+  type        = string
+  description = "azure image name to be used for bastion"
+  default     = "bastion-v1.0.0"
 }
 
 variable "bastion_ssh_allowed_ips" {
-  type    = list(string)
+  type        = list(string)
+  description = "public ips allowed to access bastion through ssh"
+
   default = []
 }
 
 variable "cluster_name" {
-  type    = string
-  default = "k8s"
+  type        = string
+  description = "cluster name"
+  default     = "k8s"
 }
 
 variable "default_tags" {
-  type = map(string)
+  type        = map(string)
+  description = "default tags for all resources"
 
   default = {
     platform = "Kubernetes"
   }
-}
-
-variable "environment" {
-  type    = string
-  default = "labs"
 }
 
 variable "images_resource_group" {
@@ -93,4 +94,3 @@ variable "worker_vm_size" {
   type    = string
   default = "Standard_DS4_v2"
 }
-

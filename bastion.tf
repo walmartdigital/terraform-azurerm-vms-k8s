@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "bastion" {
   count               = var.add_bastion ? 1 : 0
-  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+  name                = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
   allocation_method   = "Static"
@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "bastion" {
 
 resource "azurerm_network_security_group" "bastion" {
   count               = var.add_bastion ? 1 : 0
-  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+  name                = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 }
@@ -45,12 +45,12 @@ resource "azurerm_network_security_rule" "ssh_public" {
 
 resource "azurerm_network_interface" "bastion" {
   count               = var.add_bastion ? 1 : 0
-  name                = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+  name                = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 
   ip_configuration {
-    name                          = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+    name                          = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.bastion[0].id
@@ -65,7 +65,7 @@ resource "azurerm_network_interface_security_group_association" "bastion" {
 
 resource "azurerm_virtual_machine" "bastion" {
   count                            = var.add_bastion ? 1 : 0
-  name                             = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+  name                             = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
   location                         = data.azurerm_resource_group.main.location
   resource_group_name              = data.azurerm_resource_group.main.name
   network_interface_ids            = [azurerm_network_interface.bastion[0].id]
@@ -78,7 +78,7 @@ resource "azurerm_virtual_machine" "bastion" {
   }
 
   storage_os_disk {
-    name              = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-bastion"
+    name              = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -86,7 +86,7 @@ resource "azurerm_virtual_machine" "bastion" {
   }
 
   os_profile {
-    computer_name  = "${var.cluster_name}-${var.environment}-${data.azurerm_resource_group.main.location}"
+    computer_name  = "${var.cluster_name}-${data.azurerm_resource_group.main.location}"
     admin_username = "ubuntu"
     admin_password = random_password.vms
   }
@@ -103,7 +103,7 @@ resource "azurerm_virtual_machine" "bastion" {
   tags = merge(
     var.default_tags,
     {
-      "cluster" = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}"
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
       "role"    = "bastion"
     },
   )

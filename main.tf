@@ -16,7 +16,7 @@ resource "random_password" "vms" {
 }
 
 resource "azurerm_availability_set" "managers" {
-  name                        = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-managers"
+  name                        = "${var.cluster_name}-${random_pet.suffix.id}-managers"
   location                    = data.azurerm_resource_group.main.location
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
@@ -24,7 +24,7 @@ resource "azurerm_availability_set" "managers" {
 }
 
 resource "azurerm_availability_set" "workers" {
-  name                        = "${var.cluster_name}-${var.environment}-${random_pet.suffix.id}-workers"
+  name                        = "${var.cluster_name}-${random_pet.suffix.id}-workers"
   location                    = data.azurerm_resource_group.main.location
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true

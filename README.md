@@ -16,7 +16,6 @@ module "az_vms" {
   default_tags                       = {
     platform = "Kubernetes"
   }
-  environment                        = "labs"
   images_resource_group              = "resource_group_default"
   k8s_image_name                     = "k8s-v1.0.0"
   lb_ports                           = [{
