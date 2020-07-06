@@ -66,7 +66,6 @@ resource "azurerm_lb" "load_balancer_public" {
   frontend_ip_configuration {
     name                 = "${var.cluster_name}-${random_pet.suffix.id}-frontend-public"
     public_ip_address_id = azurerm_public_ip.public_ip[0].id
-    subnet_id            = data.azurerm_subnet.subnet.id
   }
 
   tags = merge(
