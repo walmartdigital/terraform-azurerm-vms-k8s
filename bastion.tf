@@ -4,6 +4,13 @@ resource "azurerm_public_ip" "bastion" {
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
   allocation_method   = "Static"
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "bastion"
+    },
+  )
 }
 
 resource "azurerm_network_security_group" "bastion" {
@@ -11,6 +18,12 @@ resource "azurerm_network_security_group" "bastion" {
   name                = "${var.cluster_name}-${random_pet.suffix.id}-bastion"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+    },
+  )
 }
 
 resource "azurerm_network_security_rule" "ssh_private" {
@@ -55,6 +68,14 @@ resource "azurerm_network_interface" "bastion" {
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.bastion[0].id
   }
+
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "bastion"
+    },
+  )
 }
 
 resource "azurerm_network_interface_security_group_association" "bastion" {

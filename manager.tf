@@ -2,6 +2,12 @@ resource "azurerm_network_security_group" "manager" {
   name                = "${var.cluster_name}-${random_pet.suffix.id}-manager"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+    },
+  )
 }
 
 resource "azurerm_network_interface" "manager" {
