@@ -18,6 +18,11 @@ output "suffix" {
   value       = random_pet.suffix.id
 }
 
+output "full_name" {
+  description = "random suffix generated"
+  value       = "${var.cluster_name}-${random_pet.suffix.id}"
+}
+
 output "worker_ips" {
   description = "list of ip addresses of worker nodes"
   value       = join(",", azurerm_network_interface.worker.*.private_ip_address)
