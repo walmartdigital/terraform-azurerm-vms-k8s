@@ -27,3 +27,8 @@ output "worker_ips" {
   description = "list of ip addresses of worker nodes"
   value       = join(",", azurerm_network_interface.worker.*.private_ip_address)
 }
+
+output "lb_public_ip" {
+  description = "ip address of the lb for the workers"
+  value       = length(local.lb_ports_public) > 0 ? azurerm_public_ip.public_ip[0].ip_address : ""
+}
