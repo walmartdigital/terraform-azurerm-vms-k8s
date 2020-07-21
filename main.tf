@@ -7,8 +7,8 @@ provider "azurerm" {
 }
 
 locals {
-  full_name = var.cluster_name != "" ? "${var.cluster_name}-${random_pet.suffix.id}" : random_pet.suffix.id
-  lb_ports_public = [for v in var.lb_ports : v if v.visibility == "public"]
+  full_name        = var.cluster_name != "" ? "${var.cluster_name}-${random_pet.suffix.id}" : random_pet.suffix.id
+  lb_ports_public  = [for v in var.lb_ports : v if v.visibility == "public"]
   lb_ports_private = [for v in var.lb_ports : v if v.visibility == "private"]
 }
 
