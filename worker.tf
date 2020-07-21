@@ -195,6 +195,21 @@ resource "azurerm_network_interface_backend_address_pool_association" "worker_pr
   backend_address_pool_id = azurerm_lb_backend_address_pool.address_pool_private.id
 }
 
+resource "azurerm_availability_set" "workers" {
+  name                        = "${var.cluster_name}-${random_pet.suffix.id}-workers"
+  location                    = data.azurerm_resource_group.main.location
+  resource_group_name         = data.azurerm_resource_group.main.name
+  managed                     = true
+  platform_fault_domain_count = 2
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "worker"
+    },
+  )
+}
+
 resource "azurerm_virtual_machine" "worker" {
   count                            = var.worker_count
   name                             = "${var.cluster_name}-${random_pet.suffix.id}-worker-${count.index + 1}"
