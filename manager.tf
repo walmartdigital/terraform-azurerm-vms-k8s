@@ -37,6 +37,21 @@ resource "azurerm_network_interface_security_group_association" "manager" {
   network_security_group_id = azurerm_network_security_group.manager.id
 }
 
+resource "azurerm_availability_set" "managers" {
+  name                        = "${var.cluster_name}-${random_pet.suffix.id}-managers"
+  location                    = data.azurerm_resource_group.main.location
+  resource_group_name         = data.azurerm_resource_group.main.name
+  managed                     = true
+  platform_fault_domain_count = 2
+  tags = merge(
+    var.default_tags,
+    {
+      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "role"    = "manager"
+    },
+  )
+}
+
 resource "azurerm_virtual_machine" "manager" {
   count                            = var.manager_count
   name                             = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
