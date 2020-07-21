@@ -12,7 +12,7 @@ module "az_vms" {
   add_bastion                        = true
   bastion_image_name                 = "bastion-v1.0.0"
   bastion_ssh_allowed_ips            = []
-  cluster_name                       = "my-k8s"
+  cluster_name                       = ""
   default_tags                       = {
     platform = "Kubernetes"
   }

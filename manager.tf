@@ -1,23 +1,23 @@
 resource "azurerm_network_security_group" "manager" {
-  name                = "${var.cluster_name}-${random_pet.suffix.id}-manager"
+  name                = "${local.full_name}-manager"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
   tags = merge(
     var.default_tags,
     {
-      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "cluster" = local.full_name
     },
   )
 }
 
 resource "azurerm_network_interface" "manager" {
   count               = var.manager_count
-  name                = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
+  name                = "${local.full_name}-manager-${count.index + 1}"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 
   ip_configuration {
-    name                          = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
+    name                          = "${local.full_name}-manager-${count.index + 1}"
     subnet_id                     = data.azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
   }
@@ -25,7 +25,7 @@ resource "azurerm_network_interface" "manager" {
   tags = merge(
     var.default_tags,
     {
-      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "cluster" = local.full_name
       "role"    = "manager"
     },
   )
@@ -38,7 +38,7 @@ resource "azurerm_network_interface_security_group_association" "manager" {
 }
 
 resource "azurerm_availability_set" "managers" {
-  name                        = "${var.cluster_name}-${random_pet.suffix.id}-managers"
+  name                        = "${local.full_name}-managers"
   location                    = data.azurerm_resource_group.main.location
   resource_group_name         = data.azurerm_resource_group.main.name
   managed                     = true
@@ -46,7 +46,7 @@ resource "azurerm_availability_set" "managers" {
   tags = merge(
     var.default_tags,
     {
-      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "cluster" = local.full_name
       "role"    = "manager"
     },
   )
@@ -54,7 +54,7 @@ resource "azurerm_availability_set" "managers" {
 
 resource "azurerm_virtual_machine" "manager" {
   count                            = var.manager_count
-  name                             = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
+  name                             = "${local.full_name}-manager-${count.index + 1}"
   location                         = data.azurerm_resource_group.main.location
   availability_set_id              = azurerm_availability_set.managers.id
   resource_group_name              = data.azurerm_resource_group.main.name
@@ -68,14 +68,14 @@ resource "azurerm_virtual_machine" "manager" {
   }
 
   storage_os_disk {
-    name              = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
+    name              = "${local.full_name}-manager-${count.index + 1}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   os_profile {
-    computer_name  = "${var.cluster_name}-${random_pet.suffix.id}-manager-${count.index + 1}"
+    computer_name  = "${local.full_name}-manager-${count.index + 1}"
     admin_username = "ubuntu"
     admin_password = random_password.vms.result
   }
@@ -92,7 +92,7 @@ resource "azurerm_virtual_machine" "manager" {
   tags = merge(
     var.default_tags,
     {
-      "cluster" = "${var.cluster_name}-${random_pet.suffix.id}"
+      "cluster" = local.full_name
       "role"    = "manager"
     },
   )

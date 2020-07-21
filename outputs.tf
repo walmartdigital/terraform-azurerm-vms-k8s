@@ -20,7 +20,7 @@ output "suffix" {
 
 output "full_name" {
   description = "random suffix generated"
-  value       = "${var.cluster_name}-${random_pet.suffix.id}"
+  value       = local.full_name
 }
 
 output "worker_ips" {
