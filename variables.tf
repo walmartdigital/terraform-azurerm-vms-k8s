@@ -20,7 +20,7 @@ variable "bastion_ssh_allowed_ips" {
 variable "cluster_name" {
   type        = string
   description = "cluster name"
-  default     = "k8s"
+  default     = ""
 }
 
 variable "default_tags" {

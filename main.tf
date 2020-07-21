@@ -6,6 +6,10 @@ provider "azurerm" {
   features {}
 }
 
+locals {
+  full_name = var.cluster_name != "" ? "${var.cluster_name}-${random_pet.suffix.id}" : random_pet.suffix.id
+}
+
 resource "random_pet" "suffix" {
 }
 
